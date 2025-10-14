@@ -11,23 +11,18 @@ import plotly.express as px
 # ---------------------------
 @st.cache_resource
 def init_firebase():
-    """Инициализация Firebase через Streamlit Secrets."""
     if not firebase_admin._apps:
         try:
-            firebase_creds = dict(st.secrets["firebase"])
-            # Заменяем \n на реальные переносы строк в ключе
-            firebase_creds["private_key"] = firebase_creds["private_key"].replace("\\n", "\n")
-            
-            cred = credentials.Certificate(firebase_creds)
+            creds = dict(st.secrets["firebase"])
+            cred = credentials.Certificate(creds)
             firebase_admin.initialize_app(cred, {
-                "databaseURL": firebase_creds["databaseURL"]
+                "databaseURL": creds["databaseURL"]
             })
             st.success("✅ Firebase подключён успешно")
         except Exception as e:
             st.error(f"❌ Ошибка инициализации Firebase: {e}")
             return False
     return True
-
 # ---------------------------
 # 2. Загрузка данных из Firebase
 # ---------------------------
