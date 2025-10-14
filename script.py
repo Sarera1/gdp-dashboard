@@ -7,22 +7,20 @@ import json
 import plotly.express as px
 
 # ---------------------------
-# 1. Инициализация Firebase
+# 1. Инициализация Firebase через Streamlit Secrets
 # ---------------------------
 @st.cache_resource
 def init_firebase():
-    """Инициализация Firebase через локальный JSON файл."""
+    """Инициализация Firebase через Streamlit Secrets."""
     if not firebase_admin._apps:
         try:
-            with open("firebase_secrets.json", "r", encoding="utf-8") as f:
-                creds = json.load(f)
-
-            if "private_key" in creds:
-                creds["private_key"] = creds["private_key"].replace("\\n", "\n")
-
-            cred = credentials.Certificate(creds)
+            firebase_creds = dict(st.secrets["firebase"])
+            # Заменяем \n на реальные переносы строк в ключе
+            firebase_creds["private_key"] = firebase_creds["private_key"].replace("\\n", "\n")
+            
+            cred = credentials.Certificate(firebase_creds)
             firebase_admin.initialize_app(cred, {
-                "databaseURL": creds.get("databaseURL")
+                "databaseURL": firebase_creds["databaseURL"]
             })
             st.success("✅ Firebase подключён успешно")
         except Exception as e:
